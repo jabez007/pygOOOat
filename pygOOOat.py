@@ -415,10 +415,10 @@ time, please reach out to [backup] (CC'ed).\n\nThanks,\n\t-%s" % self.me.name)
     def on_set(self):
         DATEFMT = ""
         if self.check_input():
-            SetGuru((self.user,self.me),
-                    self.customers.values(),
-                    self.start_cal.selection.strftime(DATEFMT),
-                    self.end_cal.selection.strftime(DATEFMT))
+            set_guru((self.user, self.me),
+                     self.customers.values(),
+                     self.start_cal.selection.strftime(DATEFMT),
+                     self.end_cal.selection.strftime(DATEFMT))
                     
     def check_input(self):
         #Critical errors
