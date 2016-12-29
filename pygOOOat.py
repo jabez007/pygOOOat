@@ -336,14 +336,13 @@ time, please reach out to [backup] (CC'ed).\n\nThanks,\n\t-%s" % self.me.name)
                 msg += b+"\n"
             box.showinfo("Available Backups for %s" % self.customer_listbox.get(selection[0]),
                          msg)
-            #self.wait_window(PasswordDialog(self))
+            # self.wait_window(PasswordDialog(self))
 
     def on_request(self):
         all_day = True
-        date_format = "%m/%d/%Y"
-        if self.check_input():
-            start_date = self.start_cal.selection.strftime(date_format)
-            end_date = self.end_cal.selection.strftime(date_format)
+
+        start_date, end_date = self.check_input()
+        if all(date is not None for date in (start_date, end_date)):
 
             if start_date == end_date:
                 start_tod = self.start_tod.get()
@@ -376,15 +375,12 @@ time, please reach out to [backup] (CC'ed).\n\nThanks,\n\t-%s" % self.me.name)
                                      all_day)
 
     def on_submit(self):
-        date_format = "%m/%d/%Y"
-        if self.check_input():
-            start_date = (self.start_cal.selection - timedelta(days=1)).strftime(date_format)
-            end_date = (self.end_cal.selection + timedelta(days=1)).strftime(date_format)
-
+        start_date, end_date = self.check_input()
+        if all(date is not None for date in (start_date, end_date)):
             message = self.email_message_text.get(1.0,
                                                   END)
-            message = message.replace('[start]', self.start_cal.selection.strftime("%m/%d"))
-            message = message.replace('[end]', self.end_cal.selection.strftime("%m/%d"))
+            message = message.replace('[start]', start_date)
+            message = message.replace('[end]', end_date)
 
             selected_customers = [self.customer_listbox.get(idx) for idx in self.customer_listbox.curselection()]
 
@@ -421,19 +417,20 @@ time, please reach out to [backup] (CC'ed).\n\nThanks,\n\t-%s" % self.me.name)
                      self.end_cal.selection.strftime(DATEFMT))
                     
     def check_input(self):
-        #Critical errors
+        date_format = "%m/%d/%Y"
+        # Critical errors
         if self.start_cal.selection is None:
             box.showerror("Input Error",
                           "No Start Date selected.")
-            return 0
+            return None, None
         if self.end_cal.selection is None:
             box.showerror("Input Error",
                           "No End Date selected.")
-            return 0
+            return None, None
         if self.end_cal.selection < self.start_cal.selection:
             box.showerror("Input Error",
                           "The end date of your absence is before its start date.")
-            return 0
+            return None, None
         # Not? critical error
         """
         if not self.contacts:
@@ -444,13 +441,15 @@ time, please reach out to [backup] (CC'ed).\n\nThanks,\n\t-%s" % self.me.name)
             self.available = self.get_available()
             self.addAvailableToBackups()
         """
-        return 1
+        start_date = self.start_cal.selection.strftime(date_format)
+        end_date = self.end_cal.selection.strftime(date_format)
+        return start_date, end_date
 
 
 def main():
 
     root = Tk()
-    #root.geometry("250x150+300+300")
+    # root.geometry("250x150+300+300")
     app = pygOOOat(root)
     root.lift()
     root.mainloop()
